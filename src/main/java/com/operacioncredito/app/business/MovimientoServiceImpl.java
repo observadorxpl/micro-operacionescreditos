@@ -48,9 +48,9 @@ public class MovimientoServiceImpl implements IMovimientoService{
 	}
 
 	@Override
-	public Flux<MovimientoCredito> listarMovimientosCliente(Cliente cliente) {
+	public Flux<MovimientoCredito> listarMovimientosCliente(String idCliente) {
 		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build()
-		.get().uri(cliente.getIdCliente()).retrieve().bodyToMono(Cliente.class).log().flux()
+		.get().uri(idCliente).retrieve().bodyToMono(Cliente.class).log().flux()
 		.defaultIfEmpty(new Cliente())
 		.flatMap(c -> {
 			if(c.getIdCliente() == null) {
@@ -59,7 +59,7 @@ public class MovimientoServiceImpl implements IMovimientoService{
 			return Flux.just(c);
 		})
 		.flatMap(c -> {
-			return movimientoRepo.findByCliente(c);
+			return movimientoRepo.buscarPorIdCliente(c.getIdCliente());
 		});
 	}
 

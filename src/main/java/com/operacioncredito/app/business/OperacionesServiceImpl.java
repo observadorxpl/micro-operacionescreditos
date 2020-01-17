@@ -5,46 +5,50 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.operacioncredito.app.models.CuentaCredito;
 import com.operacioncredito.app.models.MovimientoCredito;
 import com.operacioncredito.app.models.OperacionCreditoDTO;
-import com.operacioncredito.app.repository.ICuentaCreditoRepo;
+import com.operacioncredito.app.repository.IClienteProductoRepository;
 import com.operacioncredito.app.repository.IMovimientoRepo;
 
 import reactor.core.publisher.Mono;
 
 @Service
-public class OperacionesServiceImpl implements IOperacionesService{
+public class OperacionesServiceImpl implements IOperacionesService {
 
 	@Autowired
-	private ICuentaCreditoRepo cuentaRepo;
-	
-	@Autowired 
+	private IClienteProductoRepository clienteProductoRepo;
+
+	@Autowired
 	private IMovimientoRepo repo;
-	
+
 	@Override
-	public Mono<CuentaCredito> consumo(OperacionCreditoDTO dto) {
-		return cuentaRepo.findById(dto.getCuentaBancaria().getIdCuentaFinanciera())
-		.flatMap(c -> {
-			MovimientoCredito mov = new MovimientoCredito(c, c.getCliente(), dto.getMonto(), "Consumo", new Date());
-			if(c.getSaldo() > dto.getMonto()) {
-				c.setSaldo(c.getSaldo()-dto.getMonto());
-				repo.save(mov).subscribe();
-				 return cuentaRepo.save(c);
+	public Mono<MovimientoCredito> consumo(OperacionCreditoDTO dto) {
+		return clienteProductoRepo.findByNumeroTarjeta(dto.getNumeroTarjetaDestino()).flatMap(clPro -> {
+			if (clPro.getSaldo() >= dto.getMonto()) {
+				clPro.setSaldo(clPro.getSaldo() - dto.getMonto());
+				return clienteProductoRepo.save(clPro);
 			}
-			return Mono.error(new InterruptedException("No tiene el saldo suficiente para retirar"));
+			return Mono.error(new InterruptedException("No tiene el saldo suficiente para consumir"));
+		}).flatMap(clPro -> {
+			MovimientoCredito mov = new MovimientoCredito(dto.getNumeroCuentaOrigen(), clPro, dto.getMonto(), "Consumo",
+					new Date());
+			return repo.save(mov);
 		});
 	}
 
 	@Override
-	public Mono<CuentaCredito> abono(OperacionCreditoDTO dto) {
-		return cuentaRepo.findById(dto.getCuentaBancaria().getIdCuentaFinanciera())
-				.flatMap(c -> {
-					MovimientoCredito mov = new MovimientoCredito(c,c.getCliente(), dto.getMonto(), "Abono", new Date());
-					c.setSaldo(c.getSaldo() + dto.getMonto());
-					repo.save(mov).subscribe();
-					return cuentaRepo.save(c);
-				});
+	public Mono<MovimientoCredito> abono(OperacionCreditoDTO dto) {
+		return clienteProductoRepo.findByNumeroTarjeta(dto.getNumeroTarjetaDestino()).flatMap(clPro -> {
+			if (clPro.getLineaCredito() - clPro.getSaldo() >= dto.getMonto()) {
+				clPro.setSaldo(clPro.getSaldo() + dto.getMonto());
+				return clienteProductoRepo.save(clPro);
+			}
+			return Mono.error(new InterruptedException("El monto a abonar exede la linea de credito"));
+		}).flatMap(clPro -> {
+			MovimientoCredito mov = new MovimientoCredito(dto.getNumeroCuentaOrigen(), clPro, dto.getMonto(), "Abono",
+					new Date());
+			return repo.save(mov);
+		});
 	}
 
 }

@@ -6,11 +6,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.operacioncredito.app.models.Cliente;
 import com.operacioncredito.app.models.ClienteProductoCredito;
-import com.operacioncredito.app.models.ClienteProductosCreditoDTO;
-import com.operacioncredito.app.models.CuentaCredito;
 import com.operacioncredito.app.models.ProductoCredito;
 import com.operacioncredito.app.repository.IClienteProductoRepository;
-import com.operacioncredito.app.repository.ICuentaCreditoRepo;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,15 +17,6 @@ public class ClienteProductoServiceImpl implements IClienteProductoService {
 
 	@Autowired
 	private IClienteProductoRepository clienteProductoRepo;
-
-	
- // elmiminar
-	
-	@Autowired
-	private ICuentaCreditoRepo cuentaRepo; 
-	
-	 // sustituir por el servie
-
 	
 	@Override
 	public Flux<ClienteProductoCredito> findAll() {
@@ -183,186 +171,35 @@ public class ClienteProductoServiceImpl implements IClienteProductoService {
 	}
 
 
-	@Override
-	public Mono<ClienteProductosCreditoDTO> saveClienteProductoDTO(ClienteProductosCreditoDTO dto) {
-		if(dto.getCliente()!= null && dto.getProductosCreditos().size()> 0 && dto.getProductosCreditos() != null) {
-			WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build()
-					.get().uri(dto.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
-			.flatMapMany(cl->{
-				dto.setCliente(cl);
-				return Mono.just(cl);
-			})
-			.subscribe();
-			dto.getProductosCreditos().forEach(x -> {
-				WebClient.builder().baseUrl("http://localhost:8099/micro-credito/productos/").build()
-				.get().uri(x.getIdProducto()).retrieve().bodyToMono(ProductoCredito.class).log()
-				.map(p-> {
-					ClienteProductoCredito clproducto = new ClienteProductoCredito(dto.getCliente(), p);
-					clienteProductoRepo.save(clproducto).subscribe();
-					cuentaRepo.save(new CuentaCredito(dto.getCliente())).subscribe();
-					return p;
-				}).subscribe();
-			});
-		}
-		return this.findByCliente(dto.getCliente());
-	}
-	@Override
-	public Flux<CuentaCredito> saveClienteProductoDTOv3(ClienteProductosCreditoDTO dto) {
-		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build()
-				.get().uri(dto.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
-		.flatMapMany(cl -> {
-			dto.setCliente(cl);
-			return Flux.fromIterable(dto.getProductosCreditos());
-			//FOREACH  Flux<Producto> <--- List<Producto>
-		}).flatMap(pro -> {
-			return WebClient.builder().baseUrl("http://localhost:8099/micro-credito/productos/").build()
-			.get().uri(pro.getIdProducto()).retrieve().bodyToMono(ProductoCredito.class).log();
-			})
-		.flatMap(pro -> {
-			ClienteProductoCredito clproducto = new ClienteProductoCredito(dto.getCliente(), pro);
-			clienteProductoRepo.save(clproducto).subscribe();
-			return cuentaRepo.save(new CuentaCredito(dto.getCliente()));
-		}).collectList().flux()
-		.flatMap(cs -> {
-			return cuentaRepo.findByCliente(dto.getCliente());
-		});
-	}
-	@Override
-	public Flux<CuentaCredito> saveClienteProductoDTOv2(ClienteProductosCreditoDTO dto) {
-		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build()
-				.get().uri(dto.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
-		//return clienteRepo.findById(dto.getCliente().getIdCliente())
-		.flatMapMany(cl -> {
-			dto.setCliente(cl);
-			return Flux.fromIterable(dto.getProductosCreditos());
-			//FOREACH  Flux<Producto> <--- List<Producto>
-		}).flatMap(pro -> {
-			System.out.println("[1]");
-			// Busca producto por id
-			return WebClient.builder().baseUrl("http://localhost:8099/micro-credito/productos/").build()
-			.get().uri(pro.getIdProducto()).retrieve().bodyToMono(ProductoCredito.class).log();
-			// //
-		})
-		.flatMap(pro -> {
-			System.out.println("[2]");
 
-			// Asocia cliente con producto y guarda
-			ClienteProductoCredito clproducto = new ClienteProductoCredito(dto.getCliente(), pro);
-			return clienteProductoRepo.save(clproducto);
-		})
-		.flatMap(clPro-> {
-			System.out.println("Creando cuenta bancaria");
-			System.out.println("[3]");
-			CuentaCredito cuenta = new CuentaCredito();
-			
-			cuenta.setCliente(clPro.getCliente());
-			cuenta.setNumeroCuenta(cuenta.generarNumeroCuenta("123", 9));
-			cuenta.setClave("123");
-			cuenta.setSaldo(0.00);
-			cuenta.setEstado(true);
-			cuenta.setTipoCuenta("Basic");
-			return cuentaRepo.save(cuenta);
-		})
-		.collectList()
-		.flatMapMany(cs -> {
-			return cuentaRepo.findByCliente(dto.getCliente());
-		});
-	}
 
 	
-	@Override
-	public Flux<CuentaCredito> saveClienteProductoDTOv4(ClienteProductosCreditoDTO dto) {
-		/*
-		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build()
-				.get().uri(dto.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
-		.flatMapMany(cl -> {
-			System.out.println("flatMapMany [1]");
-			dto.setCliente(cl);
-			return Flux.fromIterable(dto.getProductosBancarios());
-			//FOREACH  Flux<Producto> <--- List<Producto>
-		}).flatMap(pro -> {
-			System.out.println("flatMap [2]");
-			// Busca producto por id
-			return WebClient.builder().baseUrl("http://localhost:8099/micro-bancario/productos/").build()
-			.get().uri(pro.getIdProducto()).retrieve().bodyToMono(ProductoCredito.class).log();
-			// //
-		})
-		.flatMap(pro -> {
-			System.out.println("flatMap [4]");
-			return cuentaRepo.findByCliente(dto.getCliente());
-		})
-		.flatMap(cuenta -> {
-			System.out.println("flatMap [5]");
-			int i = 0;
-			int j = 0;
-			int k = 0;
-			if(cuenta.getTipoCuenta() == Constante.AHORRO) {
-				i++;
-			}else if (cuenta.getTipoCuenta() == Constante.PLAZO) {
-				j++;
-			}else if (cuenta.getTipoCuenta() == Constante.CORRIENTE) {
-				k ++;
-			}
-			if(i > 1 || j > 1 || k > 1) {
-				return Mono.error(new InterruptedException(Constante.ERR_PERSONAL));
-			}
-			return Flux.just(cuenta);
-		})
-		.flatMap(pro -> {
-			System.out.println("flatMap [6]");
-			// Asocia cliente con producto y guarda
-			ClienteProductoBancario clproducto = new ClienteProductoBancario(dto.getCliente(), dto.getProducto());
-			return clienteProductoRepo.save(clproducto);
-		})
-		.flatMap(clPro-> {
-			System.out.println("flatMap [7]");
-			return cuentaRepo.save(new CuentaCredito(dto.getCliente()));
-		})
-		.collectList()
-		.flatMapMany(cs -> {
-			System.out.println("flatMap [8]");
-			return cuentaRepo.findByCliente(dto.getCliente());
-		});*/
-		return null;
-	}
+
 
 
 	@Override
-	public Mono<ClienteProductosCreditoDTO> findByCliente(Cliente cliente){
-		return null;
-		/*
-		ClienteProductosBancarioDTO dto = new ClienteProductosBancarioDTO();
-		List<ProductoBancario> productos = new ArrayList<>();
-		System.out.println("Find");
-		return clienteProductoRepo.findByCliente(cliente)
-		.map(clPro -> {
-			System.out.println("clPro map: " +clPro);
-			dto.setCliente(clPro.getCliente());
-			productos.add(clPro);
-			dto.setProductosBancarios(productos);
-			System.out.println(dto);
-			return clPro;
-		})
-		.then(Mono.just(dto));*/
+	public Flux<ClienteProductoCredito> findByCliente(String idCliente) {
+		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build().get()
+				.uri(idCliente).retrieve().bodyToMono(Cliente.class).log().flatMapMany(cli -> {
+					return clienteProductoRepo.findByCliente(cli);
+				});
 	}
+	
 	@Override
-	public Mono<ClienteProductosCreditoDTO> findByClientev2(Cliente cliente) {
-		/*
-		ClienteProductosCreditoDTO dto = new ClienteProductosCreditoDTO();
-		List<ClienteProductoCredito> productos = new ArrayList<>();
-		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build()
-				.get().uri(dto.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
-		.flatMapMany(c -> {
-			return clienteProductoRepo.findByCliente(c);
-		}).flatMap(clPro -> {
-			dto.setCliente(clPro.getCliente());
-			productos.add(clPro.getProductoCredito());
-			return Flux.just(productos);
-		}).flatMap(prods -> {
-			dto.setProductosCreditos(prods);
-			return Mono.just(dto);
-		}).next();*/
-		return null;
+	public Mono<ClienteProductoCredito> saveClienteProductoCredito(ClienteProductoCredito clienteProductoCredito) {
+		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build().get()
+				.uri(clienteProductoCredito.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
+				.flatMap(cl -> {
+					clienteProductoCredito.setCliente(cl);
+					return WebClient.builder().baseUrl("http://localhost:8099/micro-credito/productos/").build().get()
+							.uri(clienteProductoCredito.getProductoCredito().getIdProducto()).retrieve()
+							.bodyToMono(ProductoCredito.class).log();
+				}).flatMap(p -> {
+					clienteProductoCredito.setProductoCredito(p);
+					clienteProductoCredito.setNumeroTarjeta(clienteProductoCredito.generarNumeroTarjeta("333", 10));
+					clienteProductoCredito.setClave(clienteProductoCredito.generarNumeroTarjeta("9", 4));
+					clienteProductoCredito.setSaldo(clienteProductoCredito.getLineaCredito());
+					return clienteProductoRepo.save(clienteProductoCredito);
+				});
 	}
-
 }
