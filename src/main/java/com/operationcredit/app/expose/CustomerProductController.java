@@ -1,4 +1,4 @@
-package com.operacioncredito.app.expose;
+package com.operationcredit.app.expose;
 
 import javax.validation.Valid;
 
@@ -10,26 +10,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.operacioncredito.app.business.IClienteProductoService;
-import com.operacioncredito.app.models.ClienteProductoCredito;
+import com.operationcredit.app.business.ICustomerProductService;
+import com.operationcredit.app.models.CustomerCreditProduct;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/clientes-productos")
-public class ClienteProductosRestController {
+@RequestMapping("/customers-products")
+public class CustomerProductController {
 	@Autowired
-	private IClienteProductoService clienteProductosService;
+	private ICustomerProductService clienteProductosService;
 
 	@GetMapping("/{idCliente}")
-	public Flux<ClienteProductoCredito> listarProductoxCliente(@PathVariable String idCliente) {
+	public Flux<CustomerCreditProduct> listarProductoxCliente(@PathVariable String idCliente) {
 		return clienteProductosService.findByCliente(idCliente);
 	}
 
 	@PostMapping
-	public Mono<ClienteProductoCredito> registrarClienteProductoCredito(
-			@RequestBody @Valid ClienteProductoCredito clienteProductoCredito) {
+	public Mono<CustomerCreditProduct> registrarClienteProductoCredito(
+			@RequestBody @Valid CustomerCreditProduct clienteProductoCredito) {
 		return clienteProductosService.saveClienteProductoCredito(clienteProductoCredito);
 	}
 	/*

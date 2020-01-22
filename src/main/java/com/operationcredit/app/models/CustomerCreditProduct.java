@@ -1,4 +1,4 @@
-package com.operacioncredito.app.models;
+package com.operationcredit.app.models;
 
 import java.util.Random;
 
@@ -22,28 +22,28 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ClienteProductoCredito{
+public class CustomerCreditProduct{
 	@Id
-	private String clienteProductosId;
+	private String idCustomerCreditProduct;
 	@NotNull(message = "El cliente no puede ser nulo")
-	private Cliente cliente;
+	private Customer customer;
 	@NotNull(message = "El producto Credito no puede ser nulo")
-	private ProductoCredito productoCredito;
+	private CreditProduct creditProduct;
 	
-	private String numeroTarjeta;
+	private String cardNumber;
 
-	private String clave;
+	private String pass;
 	@NotNull(message = "El producto Credito no puede ser nulo")
-	private Double lineaCredito;
+	private Double lineCredit;
 
-	private Double saldo;
+	private Double balance;
 	@NotNull(message = "El estado no puede ser nulo")
-	private boolean estado;
+	private boolean state;
 	
 	@DecimalMin(value = "0.1", inclusive = true)
 	@DecimalMax(value = "9.9", inclusive = true)
 	@NotNull(message = "El interes no puede ser nulo")
-	private Double interes;
+	private Double interests;
 	
 	@Transient
 	@JsonIgnore

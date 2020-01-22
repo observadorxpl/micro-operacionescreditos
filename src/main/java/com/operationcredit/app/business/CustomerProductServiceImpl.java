@@ -1,35 +1,35 @@
-package com.operacioncredito.app.business;
+package com.operationcredit.app.business;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.operacioncredito.app.models.Cliente;
-import com.operacioncredito.app.models.ClienteProductoCredito;
-import com.operacioncredito.app.models.ProductoCredito;
-import com.operacioncredito.app.repository.IClienteProductoRepository;
+import com.operationcredit.app.models.CreditProduct;
+import com.operationcredit.app.models.Customer;
+import com.operationcredit.app.models.CustomerCreditProduct;
+import com.operationcredit.app.repository.ICustomerCreditProductRepository;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-public class ClienteProductoServiceImpl implements IClienteProductoService {
+public class CustomerProductServiceImpl implements ICustomerProductService {
 
 	@Autowired
-	private IClienteProductoRepository clienteProductoRepo;
+	private ICustomerCreditProductRepository clienteProductoRepo;
 	
 	@Override
-	public Flux<ClienteProductoCredito> findAll() {
+	public Flux<CustomerCreditProduct> findAll() {
 		return clienteProductoRepo.findAll();
 	}
 	
 	@Override
-	public Mono<ClienteProductoCredito> finById(String id) {
+	public Mono<CustomerCreditProduct> finById(String id) {
 		return clienteProductoRepo.findById(id);
 	}
 
 	@Override
-	public Mono<ClienteProductoCredito> save(ClienteProductoCredito t) {
+	public Mono<CustomerCreditProduct> save(CustomerCreditProduct t) {
 		//List<Producto> productos = new ArrayList<>();
 		//Mono<Cliente> clienteMono = clienteRepo.findById(t.getCliente().getIdCliente());
 		/*
@@ -161,7 +161,7 @@ public class ClienteProductoServiceImpl implements IClienteProductoService {
 	
 
 	@Override
-	public Mono<Void> delete(ClienteProductoCredito t) {
+	public Mono<Void> delete(CustomerCreditProduct t) {
 		return clienteProductoRepo.delete(t);
 	}
 
@@ -178,27 +178,27 @@ public class ClienteProductoServiceImpl implements IClienteProductoService {
 
 
 	@Override
-	public Flux<ClienteProductoCredito> findByCliente(String idCliente) {
-		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build().get()
-				.uri(idCliente).retrieve().bodyToMono(Cliente.class).log().flatMapMany(cli -> {
-					return clienteProductoRepo.findByCliente(cli);
+	public Flux<CustomerCreditProduct> findByCliente(String idCliente) {
+		return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-clientes/customers/").build().get()
+				.uri(idCliente).retrieve().bodyToMono(Customer.class).log().flatMapMany(cli -> {
+					return clienteProductoRepo.findByCustomer(cli);
 				});
 	}
 	
 	@Override
-	public Mono<ClienteProductoCredito> saveClienteProductoCredito(ClienteProductoCredito clienteProductoCredito) {
-		return WebClient.builder().baseUrl("http://localhost:8099/micro-clientes/clientes/").build().get()
-				.uri(clienteProductoCredito.getCliente().getIdCliente()).retrieve().bodyToMono(Cliente.class).log()
+	public Mono<CustomerCreditProduct> saveClienteProductoCredito(CustomerCreditProduct clienteProductoCredito) {
+		return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-clientes/customers/").build().get()
+				.uri(clienteProductoCredito.getCustomer().getIdCustomer()).retrieve().bodyToMono(Customer.class).log()
 				.flatMap(cl -> {
-					clienteProductoCredito.setCliente(cl);
-					return WebClient.builder().baseUrl("http://localhost:8099/micro-credito/productos/").build().get()
-							.uri(clienteProductoCredito.getProductoCredito().getIdProducto()).retrieve()
-							.bodyToMono(ProductoCredito.class).log();
+					clienteProductoCredito.setCustomer(cl);
+					return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-credito/products/").build().get()
+							.uri(clienteProductoCredito.getCreditProduct().getIdProduct()).retrieve()
+							.bodyToMono(CreditProduct.class).log();
 				}).flatMap(p -> {
-					clienteProductoCredito.setProductoCredito(p);
-					clienteProductoCredito.setNumeroTarjeta(clienteProductoCredito.generarNumeroTarjeta("333", 10));
-					clienteProductoCredito.setClave(clienteProductoCredito.generarNumeroTarjeta("9", 4));
-					clienteProductoCredito.setSaldo(clienteProductoCredito.getLineaCredito());
+					clienteProductoCredito.setCreditProduct(p);
+					clienteProductoCredito.setCardNumber(clienteProductoCredito.generarNumeroTarjeta("333", 10));
+					clienteProductoCredito.setPass(clienteProductoCredito.generarNumeroTarjeta("9", 4));
+					clienteProductoCredito.setBalance(clienteProductoCredito.getLineCredit());
 					return clienteProductoRepo.save(clienteProductoCredito);
 				});
 	}

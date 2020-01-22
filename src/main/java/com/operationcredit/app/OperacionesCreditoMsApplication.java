@@ -1,4 +1,4 @@
-package com.operacioncredito.app;
+package com.operationcredit.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

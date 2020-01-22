@@ -1,4 +1,4 @@
-package com.operacioncredito.app.models;
+package com.operationcredit.app.models;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

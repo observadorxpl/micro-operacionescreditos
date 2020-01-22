@@ -1,4 +1,4 @@
-package com.operacioncredito.app.expose;
+package com.operationcredit.app.expose;
 
 import javax.validation.Valid;
 
@@ -8,25 +8,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.operacioncredito.app.business.IOperacionesService;
-import com.operacioncredito.app.models.MovimientoCredito;
-import com.operacioncredito.app.models.OperacionCreditoDTO;
+import com.operationcredit.app.business.IOperationService;
+import com.operationcredit.app.models.MovementCredit;
+import com.operationcredit.app.models.OperacionCreditoDTO;
 
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/operaciones")
-public class OperacionesRestController {
+@RequestMapping(value = "/operations")
+public class OperationController {
 	@Autowired
-	private IOperacionesService operacionesService;
+	private IOperationService operacionesService;
 	
 	@PostMapping(value = "/abono")
-	public Mono<MovimientoCredito> abono(@RequestBody @Valid OperacionCreditoDTO dto){
+	public Mono<MovementCredit> abono(@RequestBody @Valid OperacionCreditoDTO dto){
 		return operacionesService.abono(dto);
 	}
 	
 	@PostMapping(value = "/consumo")
-	public Mono<MovimientoCredito> consumo(@RequestBody @Valid OperacionCreditoDTO dto){
+	public Mono<MovementCredit> consumo(@RequestBody @Valid OperacionCreditoDTO dto){
 		return operacionesService.consumo(dto);
 	}
 }

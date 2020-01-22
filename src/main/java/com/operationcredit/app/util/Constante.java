@@ -1,4 +1,4 @@
-package com.operacioncredito.app.util;
+package com.operationcredit.app.util;
 
 public final class Constante {
 	public static final String AHORRO = "Ahorro";

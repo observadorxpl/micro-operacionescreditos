@@ -1,4 +1,4 @@
-package com.operacioncredito.app.expose;
+package com.operationcredit.app.expose;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -6,21 +6,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.operacioncredito.app.business.IMovimientoService;
-import com.operacioncredito.app.models.Cliente;
-import com.operacioncredito.app.models.MovimientoCredito;
+import com.operationcredit.app.business.ICreditMovementService;
+import com.operationcredit.app.models.MovementCredit;
 
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/movimientos")
-public class MovimientoRestController {
+@RequestMapping("/movements")
+public class MovementController {
 	
 	@Autowired
-	private IMovimientoService service;
+	private ICreditMovementService service;
 	
 	@GetMapping("/{idCliente}")
-	public Flux<MovimientoCredito> listarMovimientos(@PathVariable String idCliente){
+	public Flux<MovementCredit> listarMovimientos(@PathVariable String idCliente){
 		return service.listarMovimientosCliente(idCliente);
 	}
 }

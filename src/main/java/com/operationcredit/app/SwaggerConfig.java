@@ -1,4 +1,4 @@
-package com.operacioncredito.app;
+package com.operationcredit.app;
 
 
 import java.util.ArrayList;
