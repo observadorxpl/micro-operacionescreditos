@@ -1,6 +1,7 @@
 package com.operationcredit.app.business;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -14,7 +15,10 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class CustomerProductServiceImpl implements ICustomerProductService {
-
+	
+	@Value("${com.bootcamp.gateway.url}")
+	private String gatewayUrlPort;
+	
 	@Autowired
 	private ICustomerCreditProductRepository clienteProductoRepo;
 	
@@ -179,7 +183,7 @@ public class CustomerProductServiceImpl implements ICustomerProductService {
 
 	@Override
 	public Flux<CustomerCreditProduct> findByCliente(String idCliente) {
-		return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-clientes/customers/").build().get()
+		return WebClient.builder().baseUrl("http://"+gatewayUrlPort+"/micro-clientes/customers/").build().get()
 				.uri(idCliente).retrieve().bodyToMono(Customer.class).log().flatMapMany(cli -> {
 					return clienteProductoRepo.findByCustomer(cli);
 				});
@@ -187,11 +191,11 @@ public class CustomerProductServiceImpl implements ICustomerProductService {
 	
 	@Override
 	public Mono<CustomerCreditProduct> saveClienteProductoCredito(CustomerCreditProduct clienteProductoCredito) {
-		return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-clientes/customers/").build().get()
+		return WebClient.builder().baseUrl("http://"+gatewayUrlPort+"/micro-clientes/customers/").build().get()
 				.uri(clienteProductoCredito.getCustomer().getIdCustomer()).retrieve().bodyToMono(Customer.class).log()
 				.flatMap(cl -> {
 					clienteProductoCredito.setCustomer(cl);
-					return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-credito/products/").build().get()
+					return WebClient.builder().baseUrl("http://"+gatewayUrlPort+"/micro-credito/products/").build().get()
 							.uri(clienteProductoCredito.getCreditProduct().getIdProduct()).retrieve()
 							.bodyToMono(CreditProduct.class).log();
 				}).flatMap(p -> {

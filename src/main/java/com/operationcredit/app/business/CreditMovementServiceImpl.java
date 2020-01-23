@@ -1,6 +1,7 @@
 package com.operationcredit.app.business;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -13,7 +14,10 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class CreditMovementServiceImpl implements ICreditMovementService{
-
+	
+	@Value("${com.bootcamp.gateway.url}")
+	private String gatewayUrlPort;
+	
 	@Autowired
 	private ICreditMovementRepo movimientoRepo;
 	
@@ -49,7 +53,7 @@ public class CreditMovementServiceImpl implements ICreditMovementService{
 
 	@Override
 	public Flux<MovementCredit> listarMovimientosCliente(String idCliente) {
-		return WebClient.builder().baseUrl("http://servicio-zuul-server:8099/micro-clientes/customers/").build()
+		return WebClient.builder().baseUrl("http://"+gatewayUrlPort+"/micro-clientes/customers/").build()
 		.get().uri(idCliente).retrieve().bodyToMono(Customer.class).log().flux()
 		.defaultIfEmpty(new Customer())
 		.flatMap(c -> {
