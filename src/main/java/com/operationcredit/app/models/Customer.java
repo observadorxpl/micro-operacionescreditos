@@ -25,5 +25,17 @@ public class Customer {
 
 	@Valid
 	private CustomerType customerType;
+	@Valid
+	private Bank bank;
 
+	public Customer(String firstName, @NotEmpty String lastnamePaternal, @NotEmpty String lastnameMaternal,
+			@NotEmpty String dni, @Valid CustomerType customerType, @Valid Bank bank) {
+		super();
+		this.firstName = firstName;
+		this.lastnamePaternal = lastnamePaternal;
+		this.lastnameMaternal = lastnameMaternal;
+		this.dni = dni;
+		this.customerType = customerType;
+		this.bank = bank;
+	}
 }

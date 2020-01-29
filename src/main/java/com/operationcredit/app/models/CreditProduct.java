@@ -27,8 +27,13 @@ public class CreditProduct {
 	private Date createAt;
 		
 	private double interest;
+	@NotEmpty
+	private Integer productCode;
 	@Valid
 	private CreditProductType productType;
+	
+	@Valid
+	private Bank bank;
 
 
 }

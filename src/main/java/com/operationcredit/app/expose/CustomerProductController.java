@@ -13,44 +13,34 @@ import org.springframework.web.bind.annotation.RestController;
 import com.operationcredit.app.business.ICustomerProductService;
 import com.operationcredit.app.models.CustomerCreditProduct;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
+@Api(value = "Credit Operation Microservice")
 @RequestMapping("/customers-products")
 public class CustomerProductController {
 	@Autowired
 	private ICustomerProductService clienteProductosService;
 
 	@GetMapping("/{idCliente}")
+	@ApiOperation(value = "List products by client", notes="List all products by client's id")
 	public Flux<CustomerCreditProduct> listarProductoxCliente(@PathVariable String idCliente) {
 		return clienteProductosService.findByCliente(idCliente);
 	}
-
+	
+	@GetMapping("/deudas/{dni}")
+	@ApiOperation(value = "List debts", notes="List debts by client's dni")
+	public Flux<CustomerCreditProduct> listarDeudas(@PathVariable String dni) {
+		return clienteProductosService.listarDeudasCreditos(dni);
+	}
+	
 	@PostMapping
+	@ApiOperation(value = "Save a customer with a product", notes = "Save and return a customer with a product, need customer, product and bank references, min(ids)")
 	public Mono<CustomerCreditProduct> registrarClienteProductoCredito(
 			@RequestBody @Valid CustomerCreditProduct clienteProductoCredito) {
 		return clienteProductosService.saveClienteProductoCredito(clienteProductoCredito);
 	}
-	/*
-	 * @Autowired private IClienteProductosService clienteProductosService;
-	 * 
-	 * @GetMapping public Flux<ClienteProductos> listarAllClientes() { return
-	 * clienteProductosService.findAll(); }
-	 * 
-	 * @GetMapping("/{id}") public Mono<ClienteProductos>
-	 * buscarCliente(@PathVariable String id) { return
-	 * clienteProductosService.finById(id); }
-	 * 
-	 * @PostMapping public Mono<ClienteProductos> registrarCliente(@RequestBody
-	 * ClienteProductos clienteProductos) { return
-	 * clienteProductosService.save(clienteProductos); }
-	 * 
-	 * @PutMapping public Mono<ClienteProductos> actualizarCliente(@RequestBody
-	 * ClienteProductos clienteProductos) { return
-	 * clienteProductosService.save(clienteProductos); }
-	 * 
-	 * @DeleteMapping("/{id}") public Mono<Void> eliminarCliente(@PathVariable
-	 * String id){ return clienteProductosService.deleteById(id); }
-	 */
 }

@@ -29,14 +29,18 @@ public class CustomerCreditProduct{
 	private Customer customer;
 	@NotNull(message = "El producto Credito no puede ser nulo")
 	private CreditProduct creditProduct;
+	@NotNull(message = "El banco no puede ser nulo")
+	private Bank bank;
 	
 	private String cardNumber;
 
 	private String pass;
 	@NotNull(message = "El producto Credito no puede ser nulo")
 	private Double lineCredit;
-
+	
+	// SI LINECREDIT != SALDO; EXISTE DEUDA
 	private Double balance;
+	
 	@NotNull(message = "El estado no puede ser nulo")
 	private boolean state;
 	

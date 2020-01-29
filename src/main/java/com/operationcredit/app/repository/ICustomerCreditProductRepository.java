@@ -1,5 +1,6 @@
 package com.operationcredit.app.repository;
 
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,9 @@ public interface ICustomerCreditProductRepository extends ReactiveMongoRepositor
 
 	public Mono<CustomerCreditProduct> findByCardNumber(String numeroTarjetaCredito);
 	
-}
+	
+	
+	@Query(" {'customer.dni' : ?0 , $where : 'this.balance < this.lineCredit'} ")
+	public Flux<CustomerCreditProduct> buscarDeudas(String dni);
+
+}  
