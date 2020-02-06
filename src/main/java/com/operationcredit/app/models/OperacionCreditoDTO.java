@@ -13,12 +13,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class OperacionCreditoDTO {
-	@NotEmpty(message = "El numero de cuenta origen no puede ser nulo o estar en blanco")
+	//@NotEmpty(message = "El numero de cuenta origen no puede ser nulo o estar en blanco")
 	private String numeroCuentaOrigen;
 	@NotEmpty(message = "El numero de tarjeta destino no puede ser nulo o estar en blanco")
 	private String numeroTarjetaDestino;
-	@NotEmpty
-	private String tipoOperacion;
+	@NotNull(message = "El tipo de operacion no puede ser nulo")
+	private TypeOperation typeOperation;	
 	@NotNull
 	private double monto;
 }

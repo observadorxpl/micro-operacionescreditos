@@ -10,5 +10,6 @@ public interface ICustomerProductService extends ICRUD<CustomerCreditProduct>{
 	public Mono<CustomerCreditProduct> saveClienteProductoCredito(CustomerCreditProduct clienteProductoCredito);
 	public Flux<CustomerCreditProduct> findByCliente(String idCliente);
 	public Flux<CustomerCreditProduct> listarDeudasCreditos(String dni);
+	public Mono<CustomerCreditProduct> buscarPorNumeroTarjeta(String numeroTarjeta);
 
 }

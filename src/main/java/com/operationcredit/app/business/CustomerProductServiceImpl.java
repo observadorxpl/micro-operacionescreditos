@@ -80,6 +80,11 @@ public class CustomerProductServiceImpl implements ICustomerProductService {
 
 	@Override
 	public Mono<CustomerCreditProduct> save(CustomerCreditProduct t) {
-		return null;
+		return clienteProductoRepo.save(t);
+	}
+
+	@Override
+	public Mono<CustomerCreditProduct> buscarPorNumeroTarjeta(String numeroTarjeta) {
+		return clienteProductoRepo.findByCardNumber(numeroTarjeta);
 	}
 }

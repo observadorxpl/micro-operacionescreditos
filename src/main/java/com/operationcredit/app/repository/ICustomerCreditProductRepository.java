@@ -13,11 +13,7 @@ import reactor.core.publisher.Mono;
 public interface ICustomerCreditProductRepository extends ReactiveMongoRepository<CustomerCreditProduct, String>{
 	public Flux<CustomerCreditProduct> findByCustomer(Customer customer);
 	public Flux<CustomerCreditProduct> findByCustomer(String idCustomer);
-
 	public Mono<CustomerCreditProduct> findByCardNumber(String numeroTarjetaCredito);
-	
-	
-	
 	@Query(" {'customer.dni' : ?0 , $where : 'this.balance < this.lineCredit'} ")
 	public Flux<CustomerCreditProduct> buscarDeudas(String dni);
 

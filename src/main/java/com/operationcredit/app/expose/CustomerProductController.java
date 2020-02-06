@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,4 +44,17 @@ public class CustomerProductController {
 			@RequestBody @Valid CustomerCreditProduct clienteProductoCredito) {
 		return clienteProductosService.saveClienteProductoCredito(clienteProductoCredito);
 	}
+	
+	@GetMapping("/card/{numeroTarjeta}")
+	@ApiOperation(value = "Find customer-product by num tarjeta", notes="Find customer-product by num tarjeta")
+	public Mono<CustomerCreditProduct> buscarPorNumeroTarjeta(@PathVariable String numeroTarjeta) {
+		return clienteProductosService.buscarPorNumeroTarjeta(numeroTarjeta);
+	}
+	
+	@PutMapping
+	@ApiOperation(value = "Update customer-product", notes="Find customer-product")
+	public Mono<CustomerCreditProduct> actualizarClienteProductoCredito(@RequestBody CustomerCreditProduct customerCreditProduct){
+		return clienteProductosService.save(customerCreditProduct);
+	}
+
 }
